@@ -3,6 +3,8 @@ package fish_basket
 import (
 	"net/http"
 
+	"appengine"
+
 	"github.com/go-martini/martini"
 
 	"github.com/riannucci/fish_basket/api"
@@ -11,6 +13,10 @@ import (
 func makeDirtyMartini() (*martini.Martini, martini.Router) {
 	r := martini.NewRouter()
 	m := martini.New()
+
+	m.Use(func(c martini.Context, req *http.Request) {
+		c.MapTo(appengine.NewContext(req), (*appengine.Context)(nil))
+	})
 
 	m.Use(martini.Logger())
 	m.Use(martini.Recovery())
@@ -21,11 +27,11 @@ func makeDirtyMartini() (*martini.Martini, martini.Router) {
 }
 
 func Run() {
-	m, r := makeDirtyMartini();
+	m, r := makeDirtyMartini()
 	api.AddRoutes(r)
 
 	r.Get("/", func() string {
-		return "Hello bob!"
+		return "Empty UI"
 	})
 
 	http.Handle("/", m)
